@@ -7,11 +7,161 @@
 
 import SwiftUI
 
-struct ContentView: View {
-    var body: some View {
-        Text("Hello, world!")
+struct AnswerButton: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .frame(minWidth: 100, minHeight: 20)
             .padding()
+            .foregroundColor(.pink)
+            .background(Color(red: 0.4627, green: 0.8392, blue: 1.0))
+            .clipShape(RoundedRectangle(cornerRadius: 10))
     }
+}
+
+extension View {
+    func buttonStyle() -> some View {
+        modifier(AnswerButton())
+    }
+}
+
+struct ContentView: View {
+    @State private var options = ["Paper", "Rock", "Scissors"]
+    @State private var appMove = Int.random(in: 0...2)
+    @State private var playerMove = ""
+    @State private var shouldPlayerWin = true
+    @State private var score = 0
+    @State private var answersCount = 1
+    @State private var endGame = false
+    @State private var gameTitle = "Game Over"
+    
+    var winOrLose: String {
+        var answer: String
+        
+        if shouldPlayerWin == true {
+            answer = "Win"
+        } else {
+            answer = "Lose"
+        }
+        
+        return answer
+    }
+    
+    var result: Bool {
+        var won: Bool
+        
+        switch shouldPlayerWin {
+        case true:
+            if playerMove == "Scissors" && appMove == 0 {
+                won = true
+            } else if playerMove == "Paper" && appMove == 1 {
+                won = true
+            } else if playerMove == "Rock" && appMove == 2 {
+                won = true
+            } else {
+                won = false
+            }
+        case false:
+            if playerMove == "Rock" && appMove == 0 {
+                won = true
+            } else if playerMove == "Scissors" && appMove == 1 {
+                won = true
+            } else if playerMove == "Paper" && appMove == 2 {
+                won = true
+            } else {
+                won = false
+            }
+        }
+        
+        return won
+    }
+    
+    var body: some View {
+        ZStack {
+            AngularGradient(gradient: Gradient(colors: [.red, .blue, .purple, .red]), center: .center)
+            VStack {
+                Spacer()
+                
+                Text("Your score: \(score)")
+                    .font(.title)
+                
+                Spacer()
+                
+                Text("Now you need to: \(winOrLose)")
+                    .font(.subheadline)
+                Text("Application move: \(options[appMove])")
+                    .font(.subheadline)
+                
+                Spacer()
+                
+                Button("\(options[0])", action: paperButton).buttonStyle()
+                Button("\(options[1])", action: rockButton).buttonStyle()
+                Button("\(options[2])", action: scissorsButton).buttonStyle()
+                
+                Spacer()
+            }
+        }
+        .alert(gameTitle, isPresented: $endGame) {
+            Button("Play again", action: playAgain)
+        } message: {
+            Text("Your score is \(score)")
+        }
+    }
+    
+    func chooseAppMove() {
+        appMove = Int.random(in: 0...2)
+    }
+    
+    func chooseIfPlayerShouldWin() {
+        shouldPlayerWin = Bool.random()
+    }
+    
+    func checkCount() {
+        if answersCount == 10 {
+            endGame = true
+        }
+    }
+    
+    func playAgain() {
+        endGame = false
+        answersCount = 0
+        score = 0
+        chooseAppMove()
+        chooseIfPlayerShouldWin()
+    }
+    
+    func paperButton() {
+        answersCount += 1
+        playerMove = options[0]
+        playNextRound()
+    }
+    
+    func rockButton() {
+        answersCount += 1
+        playerMove = options[1]
+        playNextRound()
+    }
+    
+    func scissorsButton() {
+        answersCount += 1
+        playerMove = options[2]
+        playNextRound()
+    }
+    
+    func checkMove() {
+        if result == true {
+            score += 1
+        } else {
+            score -= 1
+        }
+    }
+    
+    func playNextRound() {
+        checkMove()
+        checkCount()
+        chooseIfPlayerShouldWin()
+        chooseAppMove()
+    }
+    
 }
 
 struct ContentView_Previews: PreviewProvider {
