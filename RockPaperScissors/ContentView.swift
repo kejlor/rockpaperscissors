@@ -13,13 +13,12 @@ struct AnswerButton: ViewModifier {
             .frame(minWidth: 100, minHeight: 20)
             .padding()
             .foregroundColor(.pink)
-            .background(Color(red: 0.4627, green: 0.8392, blue: 1.0))
-            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .background(RoundedRectangle(cornerRadius: 10).fill(Color(red: 0.4627, green: 0.8392, blue: 1.0)))
     }
 }
 
 extension View {
-    func buttonStyle() -> some View {
+    func roundedButtonStyle() -> some View {
         modifier(AnswerButton())
     }
 }
@@ -32,7 +31,7 @@ struct ContentView: View {
     @State private var score = 0
     @State private var answersCount = 1
     @State private var endGame = false
-    @State private var gameTitle = "Game Over"
+    @State private var alertTitle = "Game Over"
     
     var winOrLose: String {
         var answer: String
@@ -47,32 +46,28 @@ struct ContentView: View {
     }
     
     var result: Bool {
-        var won: Bool
-        
         switch shouldPlayerWin {
         case true:
             if playerMove == "Scissors" && appMove == 0 {
-                won = true
+                return true
             } else if playerMove == "Paper" && appMove == 1 {
-                won = true
+                return true
             } else if playerMove == "Rock" && appMove == 2 {
-                won = true
+                return true
             } else {
-                won = false
+                return false
             }
         case false:
             if playerMove == "Rock" && appMove == 0 {
-                won = true
+                return true
             } else if playerMove == "Scissors" && appMove == 1 {
-                won = true
+                return true
             } else if playerMove == "Paper" && appMove == 2 {
-                won = true
+                return true
             } else {
-                won = false
+                return false
             }
         }
-        
-        return won
     }
     
     var body: some View {
@@ -93,14 +88,14 @@ struct ContentView: View {
                 
                 Spacer()
                 
-                Button("\(options[0])", action: paperButton).buttonStyle()
-                Button("\(options[1])", action: rockButton).buttonStyle()
-                Button("\(options[2])", action: scissorsButton).buttonStyle()
+                Button("\(options[0])", action: paperButton).roundedButtonStyle()
+                Button("\(options[1])", action: rockButton).roundedButtonStyle()
+                Button("\(options[2])", action: scissorsButton).roundedButtonStyle()
                 
                 Spacer()
             }
         }
-        .alert(gameTitle, isPresented: $endGame) {
+        .alert(alertTitle, isPresented: $endGame) {
             Button("Play again", action: playAgain)
         } message: {
             Text("Your score is \(score)")
